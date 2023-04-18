@@ -13,6 +13,14 @@ class State:
         new.lost = self.lost
         new.occupied = [line.copy() for line in self.occupied]
         new.active = self.active.copy()
+        return new
+
+    def __eq__(self,rhs):
+        return self.occupied == rhs.occupied and self.active == rhs.active and self.lost == rhs.lost
+
+    def __hash__(self):
+        # definitely not efficient, but correct and good enough for now
+        return str(self.occupied).__hash__() ^ str(self.active).__hash__()
 
     def activate_random_piece(self):
         self.active = []
