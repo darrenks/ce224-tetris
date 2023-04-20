@@ -20,9 +20,6 @@ def get_input():
         elif char == ord('f'):
             # rotate right
             return consts.ROTATE_RIGHT
-        elif char == curses.KEY_UP:
-            # move up
-            return consts.MOVE_UP
         elif char == curses.KEY_DOWN:
             # move down
             return consts.MOVE_DOWN
