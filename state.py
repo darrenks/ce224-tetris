@@ -52,7 +52,42 @@ class State:
 
     def move(self,direction):
         # move or rotate the active piece (or leave same if invalid move)
-        # todo (Vann)
+        # a nested function to determine whether the new location is available
+        def is_valid_move(new_positions):
+            for x, y in new_positions:
+                # if statement to make sure that the move does not move any part out of the board or into another occupied spot
+                if x < 0 or x >= consts.WIDTH or y < 0 or y >= consts.HEIGHT or (y >= 0 and self.occupied[y][x]):
+                    return False
+            return True
+
+        # a list to hold the new positions of the move
+        new_positions = list(self.active)
+
+        #print("Old position: ", self.active)
+
+        # if statement to handle the inputs
+        if direction == consts.LEFT:
+            new_positions = [(x - 1, y) for x, y in self.active]
+        elif direction == consts.RIGHT:
+            new_positions = [(x + 1, y) for x, y in self.active]
+        elif direction == consts.DOWN:
+            new_positions = [(x, y + 1) for x, y in self.active]
+        # if rotation, swap the x and y coords for 90 degree rotation
+        elif direction == consts.ROT_CLOCK or direction == consts.ROT_COUNTER:
+            pivot = self.active[1]  # Assuming the second block is the pivot
+            for i, (x, y) in enumerate(self.active):
+                rel_x, rel_y = x - pivot[0], y - pivot[1]
+                if direction == consts.ROT_CLOCK:
+                    new_positions[i] = (pivot[0] - rel_y, pivot[1] + rel_x)
+                else:
+                    new_positions[i] = (pivot[0] + rel_y, pivot[1] - rel_x)
+
+        # if move is valid, update coords of active piece
+        if is_valid_move(new_positions):
+            self.active = new_positions
+            #print("New position: ", self.active)
+        #else:
+            #print("Did not move.")
         pass
 
     def search(self):
