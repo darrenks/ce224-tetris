@@ -1,11 +1,12 @@
 import consts
 from state import State
+import sys
 
 ## you will need to do python -m pip install windows-curses
 # to get this to work on the windows computers (then run from command line)
 import curses
 
-use_ai = False
+use_ai = len(sys.argv) > 1 and sys.argv[1] == "ai" # to use ai, do: python main.py ai
 
 def get_input(screen):
     while True:

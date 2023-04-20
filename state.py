@@ -14,6 +14,14 @@ class State:
         new.lost = self.lost
         new.occupied = [line.copy() for line in self.occupied]
         new.active = self.active.copy()
+        return new
+
+    def __eq__(self,rhs):
+        return self.occupied == rhs.occupied and self.active == rhs.active and self.lost == rhs.lost
+
+    def __hash__(self):
+        # definitely not efficient, but correct and good enough for now
+        return str(self.occupied).__hash__() ^ str(self.active).__hash__()
 
     def activate_random_piece(self):
         self.active = []
@@ -21,8 +29,9 @@ class State:
         for y,line in enumerate(piece.split("\n")):
             for x,char in enumerate(line):
                 if char != " ":
-                    if self.occupied[y][x]: self.lost = True
-                    self.active.append((x,y))
+                    x_pos = x-1+consts.WIDTH//2
+                    if self.occupied[y][x_pos]: self.lost = True
+                    self.active.append((x_pos,y))
 
     # determine how good of a position we are in, higher = better
     def eval(self):
@@ -73,7 +82,7 @@ class State:
             board[count].append('-')
 
         for i in self.active:
-            board[i[0]+1][i[1]+1]=('█')
+            board[i[1]+1][i[0]+1]=('█')
 
 
         screen.clear()
