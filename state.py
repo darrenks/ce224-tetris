@@ -40,7 +40,17 @@ class State:
     # place the active piece and activate a random piece, possibly causing a loss
     def place(self):
         # place the active (todo Connor)
+        for space in self.active:
+            self.occupied[space[1]][space[0]] = True
+            
         # remove solid lines (todo Connor)
+        for row in self.occupied:
+            if all(row) == True:
+                del self.occupied[self.occupied.index(row)]
+                row = []
+                for i in range(consts.WIDTH):
+                    row.append(False)
+                self.occupied.insert(0,row)
         self.activate_random_piece()
 
     def display(self):
