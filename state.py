@@ -36,7 +36,7 @@ class State:
         # place the active (todo Connor)
         for space in self.active:
             self.occupied[space[1]][space[0]] = True
-            
+
         # remove solid lines (todo Connor)
         for row in self.occupied:
             if all(row) == True:
@@ -47,7 +47,7 @@ class State:
                 self.occupied.insert(0,row)
         self.activate_random_piece()
 
-    def display(self):
+    def display(self,screen):
         # print the game state (todo Max)
         board = []
         board.append([])
@@ -57,7 +57,7 @@ class State:
             board[count].append('-')
 
         for i in self.occupied:
-         count+=1 
+         count+=1
          board.append([])
          board[count].append('|')
          for y in i:
@@ -66,18 +66,20 @@ class State:
             else:
                 board[count].append(' ')
          board[count].append('|')
-        
+
         count+=1
         board.append([])
         for i in range(0,12):
             board[count].append('-')
-            
+
         for i in self.active:
             board[i[0]+1][i[1]+1]=('█')
-                
 
+
+        screen.clear()
         for i in board:
-            print("".join(i))
+            screen.addstr("".join(i))
+            screen.addstr("\n")
         pass
 
     def move(self,direction):
@@ -123,24 +125,24 @@ class State:
     def search(self):
         states = [self]
         stateMoves = {self:[]}
-        
+
         highestEval = self.eval()
         bestPosition = self
-        
-        
+
+
         while True:
             currentState = states.pop(0)
-            
-            
-            
+
+
+
             if currentState.eval() >= highestEval:
                 highestEval = currentState.eval()
                 bestPosition = currentState
-                
+
             for move in consts.POSSIBLE_MOVES:
                 nextState = currentState.dup().move(move)
                 if nextState not in stateMoves:
                     stateMoves[nextState] = stateMoves.get(currentState).append(move)
                     states.append(nextState)
-                    
+
         return(stateMoves[bestPosition][0])
