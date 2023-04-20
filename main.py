@@ -1,11 +1,34 @@
 import consts
 import state
+import curses
 
 use_ai = False
 
 def get_input():
-    # todo (Seth define this function)
-    return consts.DOWN
+    screen = curses.initscr()
+    curses.noecho()
+    curses.curs_set(0)
+    screen.keypad(True)
+    
+    while True:
+        # wait for user input
+        char = screen.getch()
+        
+        if char == ord('a'):
+            # rotate left
+            return consts.ROT_LEFT
+        elif char == ord('f'):
+            # rotate right
+            return consts.ROT_RIGHT
+        elif char == curses.KEY_DOWN:
+            # move down
+            return consts.DOWN
+        elif char == curses.KEY_LEFT:
+            # move left
+            return consts.LEFT
+        elif char == curses.KEY_RIGHT:
+            # move right
+            return consts.RIGHT
 
 state = state.State()
 state.start_game()
