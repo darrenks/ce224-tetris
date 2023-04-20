@@ -1,6 +1,5 @@
 import random
 import consts
-
 class State:
     def start_game(self):
         self.occupied = [[False for x in range(consts.WIDTH)] for y in range(consts.HEIGHT)]
@@ -46,8 +45,35 @@ class State:
 
     def display(self):
         # print the game state (todo Max)
-        print(self.occupied)
-        print(self.active)
+        board = []
+        board.append([])
+        count = 0
+
+        for i in range(0,12):
+            board[count].append('-')
+
+        for i in self.occupied:
+         count+=1 
+         board.append([])
+         board[count].append('|')
+         for y in i:
+            if y == True:
+                board[count].append('█')
+            else:
+                board[count].append(' ')
+         board[count].append('|')
+        
+        count+=1
+        board.append([])
+        for i in range(0,12):
+            board[count].append('-')
+            
+        for i in self.active:
+            board[i[0]+1][i[1]+1]=('█')
+                
+
+        for i in board:
+            print("".join(i))
         pass
 
     def move(self,direction):
