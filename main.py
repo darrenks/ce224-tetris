@@ -16,19 +16,19 @@ def get_input():
         
         if char == ord('a'):
             # rotate left
-            return consts.ROTATE_LEFT
+            return consts.ROT_LEFT
         elif char == ord('f'):
             # rotate right
-            return consts.ROTATE_RIGHT
+            return consts.ROT_RIGHT
         elif char == curses.KEY_DOWN:
             # move down
-            return consts.MOVE_DOWN
+            return consts.DOWN
         elif char == curses.KEY_LEFT:
             # move left
-            return consts.MOVE_LEFT
+            return consts.LEFT
         elif char == curses.KEY_RIGHT:
             # move right
-            return consts.MOVE_RIGHT
+            return consts.RIGHT
 
 state = state.State()
 state.start_game()
