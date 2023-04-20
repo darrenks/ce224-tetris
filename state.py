@@ -1,5 +1,7 @@
 import random
 import consts
+import time
+
 class State:
     def start_game(self):
         self.occupied = [[False for x in range(consts.WIDTH)] for y in range(consts.HEIGHT)]
@@ -12,14 +14,6 @@ class State:
         new.lost = self.lost
         new.occupied = [line.copy() for line in self.occupied]
         new.active = self.active.copy()
-        return new
-
-    def __eq__(self,rhs):
-        return self.occupied == rhs.occupied and self.active == rhs.active and self.lost == rhs.lost
-
-    def __hash__(self):
-        # definitely not efficient, but correct and good enough for now
-        return str(self.occupied).__hash__() ^ str(self.active).__hash__()
 
     def activate_random_piece(self):
         self.active = []
@@ -127,6 +121,26 @@ class State:
         pass
 
     def search(self):
-        # recursively search effects of possible moves, calling eval at max depth to select the action that gives best expected result
-        # todo (Mason)
-        pass
+        states = [self]
+        stateMoves = {self:[]}
+        
+        highestEval = self.eval()
+        bestPosition = self
+        
+        
+        while True:
+            currentState = states.pop(0)
+            
+            
+            
+            if currentState.eval() >= highestEval:
+                highestEval = currentState.eval()
+                bestPosition = currentState
+                
+            for move in consts.POSSIBLE_MOVES:
+                nextState = currentState.dup().move(move)
+                if nextState not in stateMoves:
+                    stateMoves[nextState] = stateMoves.get(currentState).append(move)
+                    states.append(nextState)
+                    
+        return(stateMoves[bestPosition][0])

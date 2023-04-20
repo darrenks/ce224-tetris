@@ -5,6 +5,8 @@ DOWN = 2
 ROT_CLOCK = 3
 ROT_COUNTER = 4
 
+POSSIBLE_MOVES = [LEFT, RIGHT, DOWN, ROT_CLOCK, ROT_COUNTER]
+
 PIECES = ["##\n##","####","#\n###","  #\n###"," ##\n##"," #\n###","##\n ##"]
 
 HEIGHT = 20
