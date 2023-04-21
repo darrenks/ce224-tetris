@@ -7,7 +7,7 @@ import sys
 import curses
 
 global use_ai
-use_ai = len(sys.argv) > 1 and sys.argv[1] == "ai" # to use ai, do: python main.py ai
+use_ai = "ai" in sys.argv # to use ai, do: python main.py ai
 
 def get_input(screen):
     while True:
@@ -47,7 +47,7 @@ def main(screen):
         if state.lost: break
 
         if use_ai:
-            action=state.search()
+            action,score=state.search()
             screen.refresh()
         else:
             action=get_input(screen)
@@ -56,6 +56,7 @@ def main(screen):
         state.move(action)
         if action==consts.DOWN and state==prev_state:
             state.place()
+            state.activate_next_piece()
             moves += 1
     return moves
 

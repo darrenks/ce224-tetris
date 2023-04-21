@@ -1,12 +1,13 @@
 import random
 import consts
 import time
+import sys
 
 class State:
     def start_game(self):
         self.occupied = [[False for x in range(consts.WIDTH)] for y in range(consts.HEIGHT)]
         self.lost = False
-        self.activate_random_piece()
+        self.activate_next_piece()
 
     # Create a copy of the state
     def dup(self):
@@ -23,9 +24,28 @@ class State:
         # definitely not efficient, but correct and good enough for now
         return str(self.occupied).__hash__() ^ str(self.active).__hash__()
 
-    def activate_random_piece(self):
+    def activate_next_piece(self):
         self.active = []
-        piece = consts.PIECES[random.randrange(0,len(consts.PIECES))]
+        if "evil" in sys.argv or "kind" in sys.argv:
+            mult = -1 if "evil" in sys.argv else 1
+            best = None
+            best_score = float("-inf")
+            pos = consts.PIECES[:]
+            random.shuffle(pos)
+            for piece in pos:
+                state = self.dup()
+                state.activate_piece(piece)
+                (move,score) = state.search()
+                score *= mult
+                if score > best_score:
+                    best_score = score
+                    best = piece
+            piece = best
+        else:
+            piece = consts.PIECES[random.randrange(0,len(consts.PIECES))]
+        self.activate_piece(piece)
+
+    def activate_piece(self, piece):
         for y,line in enumerate(piece.split("\n")):
             for x,char in enumerate(line):
                 if char != " ":
@@ -54,7 +74,6 @@ class State:
                 for i in range(len(self.occupied[0])):
                     row.append(False)
                 self.occupied.insert(0,row)
-        self.activate_random_piece()
 
     def display(self,screen):
         # print the game state (todo Max)
@@ -156,4 +175,4 @@ class State:
                     stateMoves[nextState] = stateMoves[currentState]+[move]
                     if not dont_push: states.append(nextState)
 
-        return(stateMoves[bestPosition][0])
+        return (stateMoves[bestPosition][0],highestEval)
