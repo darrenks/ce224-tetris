@@ -51,7 +51,7 @@ class State:
             if all(row) == True:
                 del self.occupied[self.occupied.index(row)]
                 row = []
-                for i in range(consts.WIDTH):
+                for i in range(len(self.occupied[0])):
                     row.append(False)
                 self.occupied.insert(0,row)
         self.activate_random_piece()
