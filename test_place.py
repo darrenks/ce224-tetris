@@ -1,6 +1,8 @@
 import state
+import consts
 
 state = state.State()
+consts.WIDTH = 4
 
 
 state.occupied = [[False,False,False,False],
