@@ -6,6 +6,7 @@ import sys
 # to get this to work on the windows computers (then run from command line)
 import curses
 
+global use_ai
 use_ai = len(sys.argv) > 1 and sys.argv[1] == "ai" # to use ai, do: python main.py ai
 
 def get_input(screen):
@@ -30,20 +31,24 @@ def get_input(screen):
             return consts.RIGHT
 
 def main(screen):
+    global use_ai
     screen = curses.initscr()
     curses.noecho()
     curses.curs_set(0)
     screen.keypad(True)
 
-
     state = State()
     state.start_game()
+
+    moves = 0
+
     while True:
         state.display(screen)
         if state.lost: break
 
         if use_ai:
             action=state.search()
+            screen.refresh()
         else:
             action=get_input(screen)
 
@@ -51,5 +56,9 @@ def main(screen):
         state.move(action)
         if action==consts.DOWN and state==prev_state:
             state.place()
+            moves += 1
+    return moves
 
-curses.wrapper(main)
+moves = curses.wrapper(main)
+
+print("you survived for %d moves" % moves)

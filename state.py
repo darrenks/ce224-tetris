@@ -89,7 +89,6 @@ class State:
         for i in board:
             screen.addstr("".join(i))
             screen.addstr("\n")
-        pass
 
     def move(self,direction):
         # move or rotate the active piece (or leave same if invalid move)
@@ -129,29 +128,32 @@ class State:
             #print("New position: ", self.active)
         #else:
             #print("Did not move.")
-        pass
 
     def search(self):
         states = [self]
         stateMoves = {self:[]}
 
-        highestEval = self.eval()
-        bestPosition = self
+        highestEval = float("-inf")
+        bestPosition = None
 
 
-        while True:
+        while states:
             currentState = states.pop(0)
 
-
-
-            if currentState.eval() >= highestEval:
-                highestEval = currentState.eval()
-                bestPosition = currentState
-
             for move in consts.POSSIBLE_MOVES:
-                nextState = currentState.dup().move(move)
+                nextState = currentState.dup()
+                nextState.move(move)
+
+                dont_push = False
+                if move==consts.DOWN and nextState==currentState:
+                    nextState.place()
+                    dont_push = True
+                    if highestEval == None or nextState.eval() > highestEval:
+                        highestEval = nextState.eval()
+                        bestPosition = nextState
+
                 if nextState not in stateMoves:
-                    stateMoves[nextState] = stateMoves.get(currentState).append(move)
-                    states.append(nextState)
+                    stateMoves[nextState] = stateMoves[currentState]+[move]
+                    if not dont_push: states.append(nextState)
 
         return(stateMoves[bestPosition][0])
