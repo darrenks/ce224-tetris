@@ -29,18 +29,6 @@ class State:
         for y,line in enumerate(self.occupied):
             if any(line): return y
         return consts.HEIGHT
-    
-    def eval_place(self):
-        consts.WIDTH = 4
-
-        self.occupied = [[False,False,False,False],
-                          [False,False,False,False],
-                          [False,False,False,True],
-                          [False,True,True,True],
-                          [False,True,True,True]]
-        self.active = [(0,1),(0,2),(0,3),(0,4)] # a long skinny vertical piece at the bottom left
-        self.place()
-        return self.occupied
 
     # place the active piece and activate a random piece, possibly causing a loss
     def place(self):
