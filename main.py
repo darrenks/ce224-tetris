@@ -1,6 +1,7 @@
 import consts
 from state import State
 import sys
+import random
 
 ## you will need to do python -m pip install windows-curses
 # to get this to work on the windows computers (then run from command line)
@@ -60,6 +61,7 @@ def main(screen):
             moves += 1
     return moves
 
+random.seed(777)
 moves = curses.wrapper(main)
 
 print("you survived for %d moves" % moves)

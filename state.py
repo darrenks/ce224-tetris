@@ -21,8 +21,14 @@ class State:
         return self.occupied == rhs.occupied and self.active == rhs.active and self.lost == rhs.lost
 
     def __hash__(self):
-        # definitely not efficient, but correct and good enough for now
-        return str(self.occupied).__hash__() ^ str(self.active).__hash__()
+        k = 0
+        for row in self.occupied:
+            for col in row:
+                k = k*2+col
+        for (x,y) in self.active:
+            k = k*consts.WIDTH+x
+            k = k*consts.HEIGHT+y
+        return k.__hash__()
 
     def activate_next_piece(self):
         self.active = []
@@ -156,8 +162,7 @@ class State:
         bestPosition = None
 
 
-        while states:
-            currentState = states.pop(0)
+        for currentState in states:
 
             for move in consts.POSSIBLE_MOVES:
                 nextState = currentState.dup()
@@ -172,7 +177,7 @@ class State:
                         bestPosition = nextState
 
                 if nextState not in stateMoves:
-                    stateMoves[nextState] = stateMoves[currentState]+[move]
+                    stateMoves[nextState] = stateMoves[currentState] or [move]
                     if not dont_push: states.append(nextState)
 
         return (stateMoves[bestPosition][0],highestEval)
