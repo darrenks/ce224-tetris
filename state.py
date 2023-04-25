@@ -31,7 +31,6 @@ class State:
         return k.__hash__()
 
     def activate_next_piece(self):
-        self.active = []
         if "evil" in sys.argv or "kind" in sys.argv:
             mult = -1 if "evil" in sys.argv else 1
             best = None
@@ -52,12 +51,24 @@ class State:
         self.activate_piece(piece)
 
     def activate_piece(self, piece):
+        self.active = []
         for y,line in enumerate(piece.split("\n")):
             for x,char in enumerate(line):
                 if char != " ":
                     x_pos = x-1+consts.WIDTH//2
                     if self.occupied[y][x_pos]: self.lost = True
                     self.active.append((x_pos,y))
+
+    def eval2(self):
+        score = 0
+        for piece in consts.PIECES:
+            state = self.dup()
+            state.activate_piece(piece)
+            if state.lost: best_val = float("-inf")
+            else: (best_move,best_val) = state.search(1)
+            score += best_val
+        return score
+
 
     # determine how good of a position we are in, higher = better
     def eval(self):
@@ -154,7 +165,7 @@ class State:
         #else:
             #print("Did not move.")
 
-    def search(self):
+    def search(self,depth=2):
         states = [self]
         stateMoves = {self:[]}
 
@@ -172,8 +183,13 @@ class State:
                 if move==consts.DOWN and nextState==currentState:
                     nextState.place()
                     dont_push = True
-                    if highestEval == None or nextState.eval() > highestEval:
-                        highestEval = nextState.eval()
+                    if depth==2:
+                        score = nextState.eval2()
+                    else:
+                        score = nextState.eval()
+
+                    if highestEval == None or score > highestEval:
+                        highestEval = score
                         bestPosition = nextState
 
                 if nextState not in stateMoves:
