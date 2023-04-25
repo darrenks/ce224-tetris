@@ -2,6 +2,7 @@ import consts
 from state import State
 import sys
 import random
+import time
 
 ## you will need to do python -m pip install windows-curses
 # to get this to work on the windows computers (then run from command line)
@@ -40,16 +41,20 @@ def main(screen):
 
     state = State()
     state.start_game()
+    saved_moves = []
 
     moves = 0
 
     while True:
         state.display(screen)
+        screen.refresh()
         if state.lost: break
 
         if use_ai:
-            action,score=state.search()
-            screen.refresh()
+            if not saved_moves:
+                saved_moves,score=state.search()
+            action = saved_moves.pop(0)
+            time.sleep(0.02)
         else:
             action=get_input(screen)
 

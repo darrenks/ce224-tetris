@@ -70,7 +70,7 @@ class State:
         for piece in consts.PIECES:
             state = self.dup()
             state.activate_piece(piece)
-            if state.lost: best_val = float("-inf")
+            if state.lost: best_val = float("-1000000000000")
             else: (best_move,best_val) = state.search(1)
             score += best_val
         return score
@@ -172,7 +172,7 @@ class State:
         #else:
             #print("Did not move.")
 
-    def search(self,depth=1):
+    def search(self,depth=2 if "2" in sys.argv else 1):
         states = [self]
         stateMoves = {self:[]}
 
@@ -194,12 +194,12 @@ class State:
                     else:
                         score = nextState.eval()
 
-                    if highestEval == None or score > highestEval:
+                    if score > highestEval:
                         highestEval = score
                         bestPosition = nextState
 
                 if nextState not in stateMoves:
-                    stateMoves[nextState] = stateMoves[currentState] or [move]
+                    stateMoves[nextState] = stateMoves[currentState]+[move]
                     if not dont_push: states.append(nextState)
 
-        return (stateMoves[bestPosition][0],highestEval)
+        return (stateMoves[bestPosition],highestEval)
