@@ -6,8 +6,16 @@ import sys
 class State:
     def start_game(self):
         self.occupied = [[False for x in range(consts.WIDTH)] for y in range(consts.HEIGHT)]
+        self.update_hash()
         self.lost = False
         self.activate_next_piece()
+
+    def update_hash(self):
+        k = 0
+        for row in self.occupied:
+            for col in row:
+                k = k*2+col
+        self.occupied_hash = k
 
     # Create a copy of the state
     def dup(self):
@@ -15,16 +23,14 @@ class State:
         new.lost = self.lost
         new.occupied = [line.copy() for line in self.occupied]
         new.active = self.active.copy()
+        new.occupied_hash = self.occupied_hash
         return new
 
     def __eq__(self,rhs):
         return self.occupied == rhs.occupied and self.active == rhs.active and self.lost == rhs.lost
 
     def __hash__(self):
-        k = 0
-        for row in self.occupied:
-            for col in row:
-                k = k*2+col
+        k = self.occupied_hash
         for (x,y) in self.active:
             k = k*consts.WIDTH+x
             k = k*consts.HEIGHT+y
@@ -91,6 +97,7 @@ class State:
                 for i in range(len(self.occupied[0])):
                     row.append(False)
                 self.occupied.insert(0,row)
+        self.update_hash()
 
     def display(self,screen):
         # print the game state (todo Max)
@@ -165,7 +172,7 @@ class State:
         #else:
             #print("Did not move.")
 
-    def search(self,depth=2):
+    def search(self,depth=1):
         states = [self]
         stateMoves = {self:[]}
 
@@ -174,7 +181,6 @@ class State:
 
 
         for currentState in states:
-
             for move in consts.POSSIBLE_MOVES:
                 nextState = currentState.dup()
                 nextState.move(move)
