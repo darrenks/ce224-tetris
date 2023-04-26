@@ -8,6 +8,7 @@ class State:
         self.occupied = [[False for x in range(consts.WIDTH)] for y in range(consts.HEIGHT)]
         self.update_hash()
         self.lost = False
+        self.active = []
         self.activate_next_piece()
 
     def update_hash(self):
