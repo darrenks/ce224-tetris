@@ -66,7 +66,7 @@ def main(screen):
             moves += 1
     return moves
 
-random.seed(777)
+#random.seed(777)
 moves = curses.wrapper(main)
 
 print("you survived for %d moves" % moves)

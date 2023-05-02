@@ -76,14 +76,6 @@ class State:
             score += best_val
         return score
 
-
-    # determine how good of a position we are in, higher = better
-    def eval(self):
-        # for now we will use a simple method that counts number of empty lines from the top
-        for y,line in enumerate(self.occupied):
-            if any(line): return y
-        return consts.HEIGHT
-
     # place the active piece and activate a random piece, possibly causing a loss
     def place(self):
         # place the active (todo Connor)
@@ -193,7 +185,7 @@ class State:
                     if depth==2:
                         score = nextState.eval2()
                     else:
-                        score = nextState.eval()
+                        score = eval(nextState)
 
                     if score > highestEval:
                         highestEval = score
@@ -204,3 +196,199 @@ class State:
                     if not dont_push: states.append(nextState)
 
         return (stateMoves[bestPosition],highestEval)
+
+    # Helper function to calculate the height of a given column (for Vann's)
+    def column_height(self, x):
+        for y in range(consts.HEIGHT):
+            if self.occupied[y][x]:
+                return consts.HEIGHT - y
+        return 0
+
+
+# determine how good of a position we are in, higher = better
+def eval_orig(self):
+    # for now we will use a simple method that counts number of empty lines from the top
+    for y,line in enumerate(self.occupied):
+        if any(line): return y
+    return consts.HEIGHT
+
+# max
+def eval_max(self):
+# Calculate the height of the tallest column
+    column_heights = [0 for _ in range(consts.WIDTH)]
+    for x in range(consts.WIDTH):
+        for y in range(consts.HEIGHT):
+            if self.occupied[y][x]:
+                column_heights[x] = consts.HEIGHT - y
+                break
+
+    # Count the number of holes
+    num_holes = 0
+    for x in range(consts.WIDTH):
+        for y in range(consts.HEIGHT):
+            if not self.occupied[y][x] and y > 0 and self.occupied[y-1][x]:
+                num_holes += 1
+
+    # Calculate the bumpiness of the surface
+    bumpiness = sum(abs(column_heights[i]-column_heights[i-1]) for i in range(1, consts.WIDTH))
+
+    # Calculate the number of lines cleared in the last move
+    lines_cleared = 0
+    for y in range(consts.HEIGHT):
+        if all(self.occupied[y]):
+            lines_cleared += 1
+
+    # Calculate the final evaluation score considering max column, number of holes, bumpiness of surface, and lines cleared
+    return (consts.HEIGHT - max(column_heights)) - 5*num_holes - bumpiness + 10*lines_cleared
+
+# vann
+def eval_vann(self):
+    # defining the weights
+    clrLinWght = 1.0
+    hghtWght = 0.5
+    holeWght = 0.7
+    fltnsWght = 0.3
+
+    # Initialize evaluation criteria variables
+    clrLinesScr = 0
+    heightScr = 0
+    holesScr = 0
+    flatnessScr = 0
+
+    # Calculate the height and number of holes
+    for y in range(consts.HEIGHT):
+        for x in range(consts.WIDTH):
+            if self.occupied[y][x]:
+                heightScr += consts.HEIGHT - y
+            else:
+                if y > 0 and self.occupied[y - 1][x]:
+                    holesScr += 1
+
+    # Calculate the number of cleared lines
+    for y, row in enumerate(self.occupied):
+        if all(row):
+            clrLinesScr += 1
+
+    # Calculate the flatness of the board
+    for x in range(1, consts.WIDTH):
+        flatnessScr += abs(self.column_height(x) - self.column_height(x - 1))
+
+    # Combine the evaluation criteria with their respective weights
+    score = (clrLinWght * clrLinesScr - hghtWght * heightScr - holeWght * holesScr - fltnsWght * flatnessScr)
+
+    # Return the final score
+    return score
+
+# connor
+def eval_connor(self):
+
+    hole_count = 0
+    empty = 0
+    difference = []
+    bumpiness = 0
+    score = float('-inf')
+
+    # Iterate over each cell in the grid
+    for row in range(consts.HEIGHT):
+        for col in range(consts.WIDTH):
+            # If a cell is empty (0) and has a non-empty cell above it, increment hole count
+            if not self.occupied[row][col] and row > 0 and self.occupied[row-1][col]:
+                hole_count += 1
+
+    # for now we will use a simple method that counts number of empty lines from the top
+    for y,line in enumerate(self.occupied):
+        if any(line):
+            empty = y
+            break
+
+    for col in range(consts.WIDTH):
+        for row in range(consts.HEIGHT):
+            if self.occupied[row][col]: difference.append(row + 1)
+            else: difference.append(consts.HEIGHT)
+            break
+
+    bumpiness = max(difference)
+
+    score = consts.WIDTH*empty - 3*hole_count - len(difference)*bumpiness
+
+    # print("Diff: ",difference, "\n")
+    # print("Bumpy: ",bumpiness, "\n")
+    # print("Holes: ",hole_count,"\n")
+    # print("Empty: ", empty,"\n")
+    # print("Score: ", score, "\n")
+
+
+    return score
+
+
+# seth
+def eval_seth(self):
+    # Flattening the board horizontally
+    new_board = []
+    for row in self.occupied:
+        new_board.append([0] * (consts.WIDTH - len(row)) + row)
+
+    # Counting the number of empty cells at the bottom of the flattened board
+    for y in range(consts.HEIGHT):
+        if any(new_board[y]):
+            return y
+
+    # This results is slightly better than just randomly placing them
+    return consts.HEIGHT
+
+# mason
+def eval_mason(self):
+    # for now we will use a simple method that counts number of empty lines from the top
+    badWell = 0
+    well = False
+    wellPoints = 0
+    self.numHoles = 0
+    for y,line in enumerate(self.occupied):
+        if any(line):
+            #Prevent covered Holes
+            for k in range(len(self.occupied)):
+                for x in range(len(self.occupied[k])):
+                    if (self.occupied[k][x] == False and self.occupied[k-1][x] == True):
+                        self.numHoles += 1
+#                 if self.numHoles < self.lowestNumHoles:
+#                     self.lowestNumHoles = self.numHoles
+            #Create flat mound, the lower the number the better
+            if y < 19:
+                flatness =  sum(line) + sum(self.occupied[y+1]) - 2*consts.WIDTH
+                #No more than 2 deep holes
+                for j in range(consts.WIDTH - 2):
+                    if(line[j] == False and self.occupied[y + 1][j] and self.occupied[y + 1][j]):
+                        badWell += 1
+            else:
+                flatness =  sum(line) - consts.WIDTH
+            #Contains a well on the side
+            if line[consts.WIDTH - 1] == False:
+                wellPoints += 1
+                well = True
+                while well:
+                    if y + wellPoints < 20:
+                        if(self.occupied[y + wellPoints][consts.WIDTH - 1] == False and wellPoints < 4):
+                            wellPoints += 1
+                        else:
+                            well = False
+                    else:
+                        well = False
+
+
+
+            return 100*y - 50*self.numHoles + 10*flatness + wellPoints/4 - 1 * badWell
+    return consts.HEIGHT
+
+
+if "max" in sys.argv:
+    eval = eval_max
+elif "vann" in sys.argv:
+    eval = eval_vann
+elif "connor" in sys.argv:
+    eval = eval_connor
+elif "seth" in sys.argv:
+    eval = eval_seth
+elif "mason" in sys.argv:
+    eval = eval_mason
+else:
+    eval = eval_orig
